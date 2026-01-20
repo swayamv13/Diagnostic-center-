@@ -3,12 +3,25 @@ import { assets } from '../assets/assets'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
 import { AppContext } from '../context/AppContext'
+import { toast } from 'react-toastify'
 
 const Navbar = () => {
     const navigate = useNavigate()
     const { cartItems } = useContext(CartContext)
-    const { token, setToken } = useContext(AppContext)
+
+    const { token, setToken, logout } = useContext(AppContext)
     const [showMenu, setShowMenu] = useState(false)
+
+    const handlePackageClick = () => {
+        if (token) {
+            navigate('/Packages');
+            setShowMenu(false);
+        } else {
+            toast.info("Please login to view packages");
+            navigate('/login');
+            setShowMenu(false);
+        }
+    }
 
     return (
         <div className='sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm mb-1 transition-all duration-300 font-sans'>
@@ -23,7 +36,7 @@ const Navbar = () => {
                         </div>
                         <div className='leading-tight'>
                             <h1 className='text-xl font-extrabold text-blue-900 tracking-tight'>RS Path Lab</h1>
-                            <p className='text-[10px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-primary transition-colors'>Diagnostic Services</p>
+                            <p className='text-[10px] text-gray-500 font-bold uppercase tracking-widest group-hover:text-primary transition-colors hidden sm:block'>Diagnostic Services</p>
                         </div>
                     </div>
                 </div>
@@ -40,7 +53,7 @@ const Navbar = () => {
                     </a>
 
                     <li className='group relative cursor-pointer hover:text-blue-900 transition-colors'>
-                        <span onClick={() => navigate('/Packages')}>Tests & Packages</span>
+                        <span onClick={handlePackageClick}>Tests & Packages</span>
                     </li>
                     <NavLink to='/partner'>
                         <li className='cursor-pointer hover:text-blue-900 transition-colors'>Partner With Us</li>
@@ -88,7 +101,7 @@ const Navbar = () => {
                                         <p onClick={() => navigate('my-profile')} className='px-4 py-2 hover:bg-blue-50 hover:text-primary rounded-lg cursor-pointer transition-colors'>My Profile</p>
                                         <p onClick={() => navigate('my-appointments')} className='px-4 py-2 hover:bg-blue-50 hover:text-primary rounded-lg cursor-pointer transition-colors'>My Appointments</p>
                                         <hr className='my-1 border-gray-100' />
-                                        <p onClick={() => setToken(false)} className='px-4 py-2 hover:bg-red-50 hover:text-red-500 rounded-lg cursor-pointer transition-colors'>Logout</p>
+                                        <p onClick={logout} className='px-4 py-2 hover:bg-red-50 hover:text-red-500 rounded-lg cursor-pointer transition-colors'>Logout</p>
                                     </div>
                                 </div>
                             </div>
@@ -101,31 +114,47 @@ const Navbar = () => {
                     <img onClick={() => setShowMenu(true)} className='w-6 md:hidden cursor-pointer' src={assets.menu_icon} alt="" />
                 </div>
 
-                {/* Mobile Menu */}
-                <div className={`fixed top-0 right-0 bottom-0 z-50 bg-white transition-all duration-300 shadow-2xl overflow-hidden ${showMenu ? 'w-full sm:w-80' : 'w-0'}`}>
-                    <div className='p-6 flex flex-col h-full'>
-                        <div className='flex items-center justify-between mb-8 pb-4 border-b'>
-                            <h2 className='text-xl font-extrabold text-blue-900'>RS Path Lab</h2>
-                            <img onClick={() => setShowMenu(false)} className='w-7 cursor-pointer hover:rotate-90 transition-transform' src={assets.cross_icon} alt="" />
+                {/* Mobile Menu Backdrop */}
+                {showMenu && (
+                    <div onClick={() => setShowMenu(false)} className="fixed top-20 inset-x-0 bottom-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300"></div>
+                )}
+
+                {/* Mobile Menu Floating Card */}
+                <div className={`fixed top-20 right-4 z-50 bg-white transition-all duration-300 shadow-2xl rounded-2xl border border-gray-100 overflow-hidden origin-top-right ${showMenu ? 'scale-100 opacity-100' : 'scale-95 opacity-0 invisible'} w-72`}>
+                    <div className='p-5 flex flex-col'>
+                        {/* Header hidden for cleaner card look, or kept minimal */}
+                        <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-100'>
+                            <h2 className='text-lg font-bold text-blue-900'>Menu</h2>
+                            <img onClick={() => setShowMenu(false)} className='w-6 cursor-pointer hover:rotate-90 transition-transform opacity-60 hover:opacity-100' src={assets.cross_icon} alt="" />
                         </div>
 
                         {/* Mobile Actions */}
-                        <div className='flex flex-col gap-3 mb-6'>
-                            <button className='w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-bold text-sm'>
-                                <span>📄</span> Download Report
+                        <div className='grid grid-cols-2 gap-3 mb-4'>
+                            <button className='flex items-center justify-center gap-2 px-2 py-2.5 rounded-lg bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-100 transition-colors'>
+                                <span>📄</span> Report
                             </button>
-                            <button className='w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-md'>
-                                <span>📤</span> Upload Prescription
+                            <button className='flex items-center justify-center gap-2 px-2 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-md hover:shadow-lg transition-all'>
+                                <span>📤</span> Upload
                             </button>
                         </div>
 
-                        <ul className='flex flex-col gap-4 text-lg font-medium text-gray-700'>
-                            <NavLink onClick={() => setShowMenu(false)} to='/Packages'><li className='px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-primary transition-colors'>Tests & Packages</li></NavLink>
-                            <NavLink onClick={() => setShowMenu(false)} to='/contact'><li className='px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-primary transition-colors'>Nearest Lab</li></NavLink>
+                        <ul className='flex flex-col gap-2 text-sm font-medium text-gray-700'>
+                            <NavLink onClick={() => setShowMenu(false)} to='/'><li className='px-3 py-2.5 rounded-lg hover:bg-gray-50 hover:text-primary transition-colors'>Home</li></NavLink>
+                            <li onClick={handlePackageClick} className='px-3 py-2.5 rounded-lg hover:bg-gray-50 hover:text-primary transition-colors cursor-pointer'>Tests & Packages</li>
+                            <NavLink onClick={() => setShowMenu(false)} to='/contact'><li className='px-3 py-2.5 rounded-lg hover:bg-gray-50 hover:text-primary transition-colors'>Nearest Lab</li></NavLink>
+                            {/* Profile Links for Mobile */}
+                            {token && (
+                                <>
+                                    <div className='h-[1px] bg-gray-100 my-1'></div>
+                                    <NavLink onClick={() => setShowMenu(false)} to='/my-profile'><li className='px-3 py-2.5 rounded-lg hover:bg-gray-50 hover:text-primary transition-colors'>My Profile</li></NavLink>
+                                    <NavLink onClick={() => setShowMenu(false)} to='/my-appointments'><li className='px-3 py-2.5 rounded-lg hover:bg-gray-50 hover:text-primary transition-colors'>My Appointments</li></NavLink>
+                                    <li onClick={() => { logout(); setShowMenu(false); }} className='px-3 py-2.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors cursor-pointer font-bold'>Logout</li>
+                                </>
+                            )}
                         </ul>
                         {!token && (
-                            <div className='mt-auto'>
-                                <button onClick={() => { navigate('/login'); setShowMenu(false) }} className='w-full bg-blue-900 text-white py-3 rounded-xl font-bold shadow-lg'>Sign In</button>
+                            <div className='mt-4 pt-3 border-t border-gray-100'>
+                                <button onClick={() => { navigate('/login'); setShowMenu(false) }} className='w-full bg-blue-900 text-white py-2.5 rounded-lg font-bold shadow-md text-sm hover:bg-blue-800 transition-colors'>Sign In</button>
                             </div>
                         )}
                     </div>

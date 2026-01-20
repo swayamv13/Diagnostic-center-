@@ -1,5 +1,7 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Home } from './pages/Home'
 import Packages from './pages/Packages'
 import Login from './pages/Login'
@@ -17,6 +19,7 @@ const App = () => {
   return (
     <div className='min-h-screen'>
       <Navbar />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/Packages' element={<Packages />} />

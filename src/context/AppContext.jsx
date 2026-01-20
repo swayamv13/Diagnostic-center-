@@ -84,7 +84,13 @@ const AppContextProvider = (props) => {
         setToken,
         familyMembers,
         addFamilyMember,
-        setUserData
+        setUserData,
+        logout: async () => {
+            await auth.signOut();
+            setToken(false);
+            setUser(null);
+            setUserData(null);
+        }
     };
 
     return (

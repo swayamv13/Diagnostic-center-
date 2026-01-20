@@ -4,8 +4,16 @@ const StepCarousel = ({ title, data, renderCard, onViewAll, navigat }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
 
-    const itemsPerPage = 3;
+    const [itemsPerPage, setItemsPerPage] = useState(window.innerWidth < 768 ? 1 : 3);
     const totalPages = Math.ceil(data.length / itemsPerPage);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setItemsPerPage(window.innerWidth < 768 ? 1 : 3);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (isPaused || totalPages <= 1) return;

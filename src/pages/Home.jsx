@@ -3,13 +3,16 @@ import React, { useContext, useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { assets, healthPackages } from '../assets/assets'
 import { CartContext } from '../context/CartContext'
+import { AppContext } from '../context/AppContext'
 import StepCarousel from '../components/StepCarousel'
 import { db } from '../firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { toast } from 'react-toastify'
 
 export const Home = () => {
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
+  const { token } = useContext(AppContext);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredResults, setFilteredResults] = useState([]);
 
@@ -61,17 +64,7 @@ export const Home = () => {
     }
   }, [searchQuery]);
 
-  // Toast State
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState('');
-  const [toastType, setToastType] = useState('success'); // 'success' or 'error'
-
-  const showNotification = (message, type = 'success') => {
-    setToastMsg(message);
-    setToastType(type);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-  };
+  // Toast State removed in favor of react-toastify
 
   // Handle Home Visit Form Submit
   const handleHomeVisitSubmit = async (e) => {
@@ -98,12 +91,12 @@ export const Home = () => {
       window.open(whatsappUrl, '_blank');
 
       // Success Feedback
-      showNotification("Request sent successfully! Our team will call you shortly.", "success");
+      toast.success("Request sent successfully! Our team will call you shortly.");
       form.reset(); // Clear the form
 
     } catch (error) {
       console.error("Error submitting home visit request:", error);
-      showNotification("Failed to submit request. Please try again.", "error");
+      toast.error("Failed to submit request. Please try again.");
     }
   };
 
@@ -187,7 +180,7 @@ export const Home = () => {
         <button
           onClick={() => {
             addToCart({ ...test, discountedPrice: test.price, details: [test.params] });
-            showNotification("Added to Cart!", "success");
+            toast.success("Added to Cart!");
           }}
           className='bg-blue-700 text-white px-5 py-2 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-blue-800 transition-colors'
         >
@@ -209,13 +202,7 @@ export const Home = () => {
 
   return (
     <div className='bg-gray-50 relative overflow-x-hidden'>
-      {/* TOAST NOTIFICATION */}
-      {showToast && (
-        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-fade-in-down ${toastType === 'success' ? 'bg-green-600' : 'bg-red-500'} text-white`}>
-          <span className='text-xl'>{toastType === 'success' ? '✅' : '❌'}</span>
-          <span className='font-bold text-sm'>{toastMsg}</span>
-        </div>
-      )}
+      {/* TOAST NOTIFICATION Removed */}
 
       {/* 1. HERO SECTION */}
       <section className='bg-gradient-to-r from-blue-50 via-white to-blue-50 relative pb-20 pt-10 md:pt-16'>
@@ -298,7 +285,13 @@ export const Home = () => {
               Join millions of satisfied families. Experience accurate reports, home collection convenience, and world-class care.
             </p>
 
-            <button onClick={() => navigate('/Packages')} className='group bg-blue-900 text-white px-8 py-4 rounded-xl hover:bg-blue-800 transition-all font-bold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-2'>
+            <button onClick={() => {
+              if (token) navigate('/Packages');
+              else {
+                toast.info("Please login to view packages");
+                navigate('/login');
+              }
+            }} className='group bg-blue-900 text-white px-8 py-4 rounded-xl hover:bg-blue-800 transition-all font-bold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-2'>
               View All Packages
               <span className='group-hover:translate-x-1 transition-transform'>→</span>
             </button>
@@ -387,7 +380,13 @@ export const Home = () => {
       <section className='section-padding py-16 bg-white'>
         <div className='flex justify-between items-end mb-10'>
           <h2 className='text-3xl font-bold text-gray-900'>Most Prescribed Tests</h2>
-          <button onClick={() => navigate('/Packages')} className='hidden md:block text-primary font-semibold hover:underline'>View All</button>
+          <button onClick={() => {
+            if (token) navigate('/Packages');
+            else {
+              toast.info("Please login to view packages");
+              navigate('/login');
+            }
+          }} className='hidden md:block text-primary font-semibold hover:underline'>View All</button>
         </div>
 
         <div

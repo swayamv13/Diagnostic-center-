@@ -4,6 +4,7 @@ import { AppContext } from '../context/AppContext';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'
 
 const MyProfile = () => {
   // Use direct values from context for reading, local state for editing
@@ -47,10 +48,10 @@ const MyProfile = () => {
       await setDoc(docRef, { ...localData }, { merge: true });
       setUserData({ ...userData, ...localData }); // Update context
       setIsEdit(false);
-      alert("Profile Updated Successfully!");
+      toast.success("Profile Updated Successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
+      toast.error("Failed to update profile.");
     }
   };
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import { auth, googleProvider } from '../firebase'
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { toast } from 'react-toastify'
 
 const Login = () => {
   const [state, setState] = useState('Sign In') // 'Sign In' or 'Sign Up'
@@ -18,10 +19,11 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      toast.success("Logged in successfully");
       navigate('/');
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      toast.error(error.message);
     }
   }
 
@@ -32,13 +34,15 @@ const Login = () => {
       if (state === 'Sign Up') {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
+        toast.success("Account created successfully");
       } else {
         await signInWithEmailAndPassword(auth, email, password);
+        toast.success("Logged in successfully");
       }
       navigate('/');
     } catch (error) {
       console.error("Email Auth Error:", error);
-      alert(error.message);
+      toast.error(error.message);
     }
   }
 
